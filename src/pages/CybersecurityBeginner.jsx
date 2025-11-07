@@ -1,10 +1,35 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CybersecurityBeginner.css";
 import logo from "../assets/logo.png";
+import { getCurrentUser, listenToAuthChanges, logout } from "../auth/auth";
 
 export default function CybersecurityBeginner() {
   const navigate = useNavigate();
+
+  const [user, setUser] = useState(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
+  // ✅ Keep user logged in across refresh
+  useEffect(() => {
+    const unsub = listenToAuthChanges((firebaseUser) => {
+      setUser(firebaseUser);
+    });
+
+    (async () => {
+      const current = await getCurrentUser();
+      if (current) setUser(current);
+    })();
+
+    return () => unsub();
+  }, []);
+
+  const handleLogout = async () => {
+    await logout();
+    setUser(null);
+    setShowUserMenu(false);
+    navigate("/login");
+  };
 
   return (
     <div className="cyber-page">
@@ -32,9 +57,26 @@ export default function CybersecurityBeginner() {
         </div>
 
         <div className="nav-right">
-          <button className="login-btn" onClick={() => navigate("/login")}>
-            Login
-          </button>
+          {!user ? (
+            <button className="login-btn" onClick={() => navigate("/login")}>
+              Login
+            </button>
+          ) : (
+            <div className="user-wrapper">
+              <div
+                className="user-info"
+                onClick={() => setShowUserMenu((p) => !p)}
+              >
+                {user.email}
+              </div>
+              {showUserMenu && (
+                <div className="user-menu">
+                  <button onClick={() => navigate("/profile")}>Profile</button>
+                  <button onClick={handleLogout}>Log out</button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </nav>
 
@@ -49,7 +91,10 @@ export default function CybersecurityBeginner() {
         </p>
 
         <div className="cyber-actions">
-          <button className="start-btn" onClick={() => navigate("/interview/cybersecurity/beginner")  }>
+          <button
+            className="start-btn"
+            onClick={() => navigate("/interview/cybersecurity/beginner")}
+          >
             Start Interview
           </button>
           <button className="back-btn" onClick={() => navigate("/interviews")}>

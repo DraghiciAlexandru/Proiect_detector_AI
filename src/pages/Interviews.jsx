@@ -2,9 +2,17 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Interviews.css";
 import logo from "../assets/logo.png";
+import {
+  getCurrentUser,
+  listenToAuthChanges,
+  logout,
+} from "../auth/auth"; // ⬅️ use the new helpers
 
 export default function Interviews() {
   const navigate = useNavigate();
+
+  const [user, setUser] = useState(null);
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const domains = [
     "JavaScript",
@@ -18,13 +26,24 @@ export default function Interviews() {
 
   const difficulties = ["Beginner", "Intermediate", "Advanced"];
 
-  // progress shape:
-  // {
-  //   "JavaScript": { Beginner: true, Intermediate: false, Advanced: false },
-  //   "Cybersecurity": { Beginner: true, Intermediate: true, Advanced: false }
-  // }
   const [progress, setProgress] = useState({});
 
+  // ✅ keep user logged in on refresh
+  useEffect(() => {
+    const unsub = listenToAuthChanges((firebaseUser) => {
+      setUser(firebaseUser);
+    });
+
+    // optional initial read
+    (async () => {
+      const current = await getCurrentUser();
+      if (current) setUser(current);
+    })();
+
+    return () => unsub();
+  }, []);
+
+  // load interview progress
   useEffect(() => {
     const saved = localStorage.getItem("interviewProgress_v2");
     if (saved) {
@@ -37,16 +56,10 @@ export default function Interviews() {
     localStorage.setItem("interviewProgress_v2", JSON.stringify(next));
   };
 
-  // check lock based on previous level
   const isLocked = (domain, level) => {
     const order = ["Beginner", "Intermediate", "Advanced"];
     const idx = order.indexOf(level);
-
-    // Beginner is never locked
     if (idx === 0) return false;
-
-    // to unlock Intermediate -> Beginner must be true
-    // to unlock Advanced -> Intermediate must be true
     const prevLevel = order[idx - 1];
     const domainProgress = progress[domain] || {};
     return !domainProgress[prevLevel];
@@ -57,7 +70,6 @@ export default function Interviews() {
 
     // special route for cybersecurity beginner
     if (domain === "Cybersecurity" && level === "Beginner") {
-      // mark it completed too
       const next = {
         ...progress,
         [domain]: {
@@ -70,7 +82,6 @@ export default function Interviews() {
       return;
     }
 
-    // mark this level as completed (but keep others!)
     const next = {
       ...progress,
       [domain]: {
@@ -80,13 +91,19 @@ export default function Interviews() {
     };
     saveProgress(next);
 
-    // temp action
     alert(`${domain} - ${level} started!`);
   };
 
   const handleReset = () => {
     setProgress({});
     localStorage.removeItem("interviewProgress_v2");
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setUser(null);
+    setShowUserMenu(false);
+    navigate("/login");
   };
 
   return (
@@ -115,9 +132,26 @@ export default function Interviews() {
         </div>
 
         <div className="nav-right">
-          <button className="login-btn" onClick={() => navigate("/login")}>
-            Login
-          </button>
+          {!user ? (
+            <button className="login-btn" onClick={() => navigate("/login")}>
+              Login
+            </button>
+          ) : (
+            <div className="user-wrapper">
+              <div
+                className="user-info"
+                onClick={() => setShowUserMenu((p) => !p)}
+              >
+                {user.email}
+              </div>
+              {showUserMenu && (
+                <div className="user-menu">
+                  <button onClick={() => navigate("/profile")}>Profile</button>
+                  <button onClick={handleLogout}>Log out</button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </nav>
 

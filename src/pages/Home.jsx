@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
-import { getCurrentUser, logout } from "../auth/auth";
+import { getCurrentUser, logout, listenToAuthChanges } from "../auth/auth";
 import logo from "../assets/logo.png";
 
 export default function Home() {
@@ -10,16 +10,24 @@ export default function Home() {
   const [showServices, setShowServices] = useState(false);
   const navigate = useNavigate();
 
+  // keep user logged in on refresh
   useEffect(() => {
-    async function fetchUser() {
+    // subscribe to Firebase auth changes
+    const unsub = listenToAuthChanges((firebaseUser) => {
+      setUser(firebaseUser);
+    });
+
+    // also do an initial read (optional, but okay)
+    (async () => {
       try {
         const currentUser = await getCurrentUser();
-        setUser(currentUser);
+        if (currentUser) setUser(currentUser);
       } catch (err) {
         console.error("Error getting user:", err);
       }
-    }
-    fetchUser();
+    })();
+
+    return () => unsub();
   }, []);
 
   const handleLogout = async () => {
@@ -31,6 +39,15 @@ export default function Home() {
   const goToProtected = () => {
     if (user) {
       navigate("/app");
+    } else {
+      navigate("/login");
+    }
+  };
+
+  // 🔒 Interviews protected too
+  const goToInterviews = () => {
+    if (user) {
+      navigate("/interviews");
     } else {
       navigate("/login");
     }
@@ -59,10 +76,10 @@ export default function Home() {
 
             {showServices && (
               <div className="dropdown-menu">
-                <button onClick={() => navigate("/interviews")}>
+                <button onClick={goToInterviews}>
                   Interviews
                 </button>
-                <button onClick={() => goToProtected()}>
+                <button onClick={goToProtected}>
                   AI Assistant
                 </button>
                 <button onClick={() => navigate("/services/consulting")}>

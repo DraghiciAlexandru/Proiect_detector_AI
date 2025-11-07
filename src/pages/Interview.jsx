@@ -4,6 +4,8 @@ import "./Interview.css";
 import { getCurrentUser, logout } from "../auth/auth";
 import interviewService from "../api/interviewservice";
 import { createInterview, addInterviewQuestion, finishInterview } from "../db/db";
+import logo from "../assets/logo.png";
+
 
 export default function Interview() {
   const { domain, level } = useParams();
@@ -234,7 +236,12 @@ export default function Interview() {
       {/* NAVBAR */}
       <nav className="app-navbar">
         <div className="app-nav-left" onClick={() => navigate("/")}>
-          <h2 className="logo">Maidan</h2>
+         <img
+          src={logo}
+          alt="Maidan Logo"
+          className="logo-image"
+          onClick={() => navigate("/")}
+        />
         </div>
         <div className="app-nav-right">
           {!user ? (
