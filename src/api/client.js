@@ -74,7 +74,7 @@ export async function checkAnswer(question, userAnswer, actualAnswer) {
     };
 
     const data = {
-        model: "gpt-3.5-turbo",
+        model: "gpt-4.5",
         messages: [
             { role: "system", content: "You are a helpful assistant." },
             {

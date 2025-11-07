@@ -1,12 +1,12 @@
-import javascriptQuestions from './data/javascript-questions.json';
-import reactQuestions from './data/react-questions.json';
-import pythonQuestions from './data/python-questions.json';
-import nodejsQuestions from './data/nodejs-questions.json';
-import aiMlQuestions from './data/ai-ml-questions.json';
-import devopsQuestions from './data/devops-questions.json';
-import cybersecurityQuestions from './data/cybersecurity-questions.json';
+import javascriptQuestions from './javascript-questions.json';
+import reactQuestions from './react-questions.json';
+import pythonQuestions from './python-questions.json';
+import nodejsQuestions from './nodejs-questions.json';
+import aiMlQuestions from './ai-ml-questions.json';
+import devopsQuestions from './devops-questions.json';
+import cybersecurityQuestions from './cybersecurity-questions.json';
 
-export const questions = {
+const questions = {
   [javascriptQuestions.domain]: javascriptQuestions.levels,
   [reactQuestions.domain]: reactQuestions.levels,
   [pythonQuestions.domain]: pythonQuestions.levels,
@@ -15,3 +15,5 @@ export const questions = {
   [devopsQuestions.domain]: devopsQuestions.levels,
   [cybersecurityQuestions.domain]: cybersecurityQuestions.levels
 };
+
+export default questions;
