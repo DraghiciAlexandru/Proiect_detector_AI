@@ -1,0 +1,41 @@
+{
+  "domain": "Python",
+  "levels": {
+    "beginner": [
+      "What are the key features of Python?",
+      "What is the difference between lists and tuples?",
+      "How do you handle exceptions in Python?",
+      "What are Python decorators and how do you use them?",
+      "Explain list comprehensions with an example",
+      "What is the difference between shallow copy and deep copy?",
+      "How do you work with files in Python?",
+      "What are Python generators and how are they different from functions?",
+      "Explain the Global Interpreter Lock (GIL)",
+      "What are lambda functions and when would you use them?"
+    ],
+    "intermediate": [
+      "How does Python's memory management work?",
+      "What are metaclasses and when would you use them?",
+      "Explain the MRO (Method Resolution Order) in Python",
+      "What are context managers and how do you create one?",
+      "How do you implement polymorphism in Python?",
+      "What are the differences between async/await and threading?",
+      "How does Python's garbage collection work?",
+      "What are dataclasses and what problems do they solve?",
+      "Explain descriptor protocol in Python",
+      "How do you profile and optimize Python code?"
+    ],
+    "advanced": [
+      "How would you implement a custom metaclass?",
+      "Explain how to use C extensions with Python",
+      "What are the internals of CPython implementation?",
+      "How do you handle memory leaks in Python?",
+      "What are the best practices for building large-scale Python applications?",
+      "How does asyncio work under the hood?",
+      "Explain the implementation of Python's import system",
+      "What are the security considerations when using Python?",
+      "How would you design a Python package for distribution?",
+      "What are the performance characteristics of different Python data structures?"
+    ]
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "domain": "JavaScript",
+  "levels": {
+    "beginner": [
+      "What is the difference between let, const, and var?",
+      "Explain what a closure is in JavaScript",
+      "What is event bubbling and how does it work?",
+      "What are the different data types in JavaScript?",
+      "How do you create an object in JavaScript?",
+      "What is the difference between == and ===?",
+      "How does hoisting work in JavaScript?",
+      "What is an arrow function and how is it different from a regular function?",
+      "Explain what JSON is and how to use it in JavaScript",
+      "What are template literals and how do you use them?"
+    ],
+    "intermediate": [
+      "How does the 'this' keyword work in different contexts?",
+      "Explain the concept of promises and async/await",
+      "What are higher-order functions and provide an example",
+      "What is the event loop and how does it work?",
+      "Explain function currying and its benefits",
+      "What are JavaScript modules and how do you use them?",
+      "How does JavaScript handle memory management?",
+      "What are the different ways to handle errors in JavaScript?",
+      "Explain the concept of debouncing and throttling",
+      "What are Web Workers and when would you use them?"
+    ],
+    "advanced": [
+      "Explain the JavaScript event loop and how it handles asynchronous operations in detail",
+      "What are JavaScript generators and how are they different from async/await?",
+      "How does JavaScript's prototypal inheritance work compared to classical inheritance?",
+      "Explain the concept of memoization and implement a memoization function",
+      "What is the Temporal Dead Zone in JavaScript?",
+      "How does the V8 engine compile and optimize JavaScript code?",
+      "What are Proxy and Reflect objects and what are their use cases?",
+      "Explain how to implement inheritance using both ES5 and ES6+ syntax",
+      "What are the performance implications of using closures?",
+      "How would you implement a custom promise from scratch?"
+    ]
+  }
+}

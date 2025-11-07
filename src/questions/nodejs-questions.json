@@ -1,0 +1,41 @@
+{
+  "domain": "Node.js",
+  "levels": {
+    "beginner": [
+      "What is Node.js and how does it differ from traditional server-side technologies?",
+      "Explain the event-driven architecture of Node.js",
+      "What is the package.json file and what is its purpose?",
+      "How do you handle file operations in Node.js?",
+      "What are streams and why are they important in Node.js?",
+      "How do you create a simple HTTP server in Node.js?",
+      "What is the difference between require and import?",
+      "How do you handle environment variables in Node.js?",
+      "What is the purpose of the node_modules folder?",
+      "How do you debug a Node.js application?"
+    ],
+    "intermediate": [
+      "Explain the Node.js event loop in detail",
+      "What is the cluster module and how does it work?",
+      "How do you handle memory leaks in Node.js applications?",
+      "What are the best practices for error handling in Node.js?",
+      "How does the module caching work in Node.js?",
+      "What are the differences between spawn, exec, and fork?",
+      "How do you implement authentication in Node.js?",
+      "What is middleware in Express.js and how does it work?",
+      "How do you handle database connections in Node.js?",
+      "What are the security best practices for Node.js applications?"
+    ],
+    "advanced": [
+      "How does the V8 engine work with Node.js?",
+      "Explain how to scale Node.js applications horizontally",
+      "What are the performance monitoring tools for Node.js?",
+      "How do you implement microservices with Node.js?",
+      "What are the challenges of real-time applications with Node.js?",
+      "How does Node.js handle child processes and worker threads?",
+      "What are the memory management techniques for large Node.js applications?",
+      "How do you implement caching strategies in Node.js?",
+      "What are the best practices for testing Node.js applications?",
+      "How do you deploy and monitor Node.js applications in production?"
+    ]
+  }
+}

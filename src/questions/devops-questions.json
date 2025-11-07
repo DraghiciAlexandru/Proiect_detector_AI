@@ -1,0 +1,41 @@
+{
+  "domain": "DevOps",
+  "levels": {
+    "beginner": [
+      "What is DevOps and what problems does it solve?",
+      "Explain the difference between continuous integration and continuous deployment",
+      "What are containers and how are they different from virtual machines?",
+      "What is Docker and how do you create a Dockerfile?",
+      "What is version control and why is Git important?",
+      "What are the main AWS/Azure/GCP services you've worked with?",
+      "What is infrastructure as code and what tools have you used?",
+      "How do you monitor applications and infrastructure?",
+      "What is a pipeline in DevOps?",
+      "What are the key principles of DevOps?"
+    ],
+    "intermediate": [
+      "How do you implement blue-green deployments?",
+      "What is Kubernetes and how does it work?",
+      "Explain the difference between Docker and Kubernetes",
+      "How do you manage secrets in a DevOps pipeline?",
+      "What are the best practices for container security?",
+      "How do you handle database migrations in CI/CD?",
+      "What is observability and how is it different from monitoring?",
+      "How do you implement auto-scaling in the cloud?",
+      "What are the different deployment strategies?",
+      "How do you ensure high availability in your infrastructure?"
+    ],
+    "advanced": [
+      "How would you design a multi-region deployment strategy?",
+      "What are service meshes and when would you use them?",
+      "How do you implement GitOps in your workflow?",
+      "What are the security considerations in a DevOps pipeline?",
+      "How do you handle disaster recovery planning?",
+      "What are the performance optimization techniques for Kubernetes?",
+      "How do you implement cost optimization in cloud infrastructure?",
+      "What are the challenges of microservices architecture in DevOps?",
+      "How do you implement zero-downtime deployments?",
+      "What are the emerging trends in DevOps and cloud native technologies?"
+    ]
+  }
+}

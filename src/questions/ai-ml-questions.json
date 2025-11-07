@@ -1,0 +1,41 @@
+{
+  "domain": "AI/ML",
+  "levels": {
+    "beginner": [
+      "What is the difference between AI, machine learning, and deep learning?",
+      "Explain supervised vs unsupervised learning with examples",
+      "What is overfitting and how can you prevent it?",
+      "What are training, validation, and test datasets?",
+      "Explain the bias-variance tradeoff",
+      "What are the main types of machine learning algorithms?",
+      "What is cross-validation and why is it important?",
+      "How do you evaluate classification models?",
+      "What is feature engineering and why is it important?",
+      "Explain linear regression and its assumptions"
+    ],
+    "intermediate": [
+      "How does gradient descent work?",
+      "What are the different types of neural networks?",
+      "Explain backpropagation in neural networks",
+      "What are convolutional neural networks and their applications?",
+      "How do recurrent neural networks handle sequential data?",
+      "What are transformers and how do they work?",
+      "Explain the concept of attention mechanism",
+      "What are generative adversarial networks (GANs)?",
+      "How do you handle imbalanced datasets?",
+      "What are the ethical considerations in AI/ML?"
+    ],
+    "advanced": [
+      "Explain the mathematical foundations of deep learning",
+      "How would you design a recommendation system from scratch?",
+      "What are the challenges in training large language models?",
+      "Explain different optimization algorithms beyond SGD",
+      "How do you implement transfer learning effectively?",
+      "What are the latest advancements in computer vision?",
+      "How do you handle multi-modal AI systems?",
+      "What are the techniques for model interpretability?",
+      "How would you design an AI system for real-time inference?",
+      "What are the current limitations of deep learning?"
+    ]
+  }
+}

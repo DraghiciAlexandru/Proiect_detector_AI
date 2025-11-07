@@ -1,0 +1,41 @@
+{
+  "domain": "React",
+  "levels": {
+    "beginner": [
+      "What are the key differences between functional and class components?",
+      "What is JSX and how is it different from HTML?",
+      "Explain the purpose of state and props in React",
+      "What are React hooks and why were they introduced?",
+      "How do you handle events in React?",
+      "What is the significance of keys in React lists?",
+      "How do you conditionally render components?",
+      "What is the virtual DOM and how does it work?",
+      "How do you create forms in React?",
+      "What are controlled vs uncontrolled components?"
+    ],
+    "intermediate": [
+      "How does React's reconciliation algorithm work?",
+      "Explain the component lifecycle in functional components with hooks",
+      "What are custom hooks and when would you create one?",
+      "How do you optimize React application performance?",
+      "What are React error boundaries and how do they work?",
+      "Explain the Context API and when to use it",
+      "What is the difference between useCallback and useMemo?",
+      "How does React handle state batching?",
+      "What are React portals and their use cases?",
+      "How do you test React components effectively?"
+    ],
+    "advanced": [
+      "Explain how React Fiber architecture improves performance",
+      "How would you implement a custom hook for data fetching with caching?",
+      "What are the different patterns for code splitting in React?",
+      "How does React's concurrent features work?",
+      "Explain how to handle authentication and authorization in a React app",
+      "What are the best practices for state management in large React applications?",
+      "How would you implement a render prop pattern or higher-order component?",
+      "What are the trade-offs between different state management libraries?",
+      "How do you handle SSR with React?",
+      "Explain React's suspense and how it works with data fetching"
+    ]
+  }
+}
