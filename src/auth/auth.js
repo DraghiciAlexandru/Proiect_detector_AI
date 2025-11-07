@@ -6,8 +6,8 @@ const auth = getAuth(app);
 export async function signUp(email, password) {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        return true;
         console.log("User signed up:", userCredential.user);
+        return true;
     } catch (e) {
         console.error("Error signing up:", e);
         return false;
