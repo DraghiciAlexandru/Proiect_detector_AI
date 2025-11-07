@@ -1,6 +1,6 @@
 {
-  "domain": "JavaScript",
-  "url": "javascript",
+  "name": "JavaScript",
+  "domain": "javascript",
   "levels": {
     "beginner": [
       "What is the difference between let, const, and var?",

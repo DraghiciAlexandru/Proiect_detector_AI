@@ -1,6 +1,6 @@
 {
-  "domain": "React",
-  "url": "react",
+  "name": "React",
+  "domain": "react",
   "levels": {
     "beginner": [
       "What are the key differences between functional and class components?",

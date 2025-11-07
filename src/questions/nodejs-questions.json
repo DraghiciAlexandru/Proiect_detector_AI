@@ -1,6 +1,6 @@
 {
-  "domain": "Node.js",
-  "url": "nodejs",
+  "name": "Node.js",
+  "domain": "nodejs",
   "levels": {
     "beginner": [
       "What is Node.js and how does it differ from traditional server-side technologies?",

@@ -1,6 +1,6 @@
 {
-  "domain": "Python",
-  "url": "python",
+  "name": "Python",
+  "domain": "python",
   "levels": {
     "beginner": [
       "What are the key features of Python?",

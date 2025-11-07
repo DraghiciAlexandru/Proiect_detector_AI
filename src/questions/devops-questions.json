@@ -1,6 +1,6 @@
 {
-  "domain": "DevOps",
-  "url": "devops",
+  "name": "DevOps",
+  "domain": "devops",
   "levels": {
     "beginner": [
       "What is DevOps and what problems does it solve?",
