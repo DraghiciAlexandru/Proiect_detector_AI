@@ -1,5 +1,6 @@
 {
   "domain": "AI/ML",
+  "url": "aiml",
   "levels": {
     "beginner": [
       "What is the difference between AI, machine learning, and deep learning?",
