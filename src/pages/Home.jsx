@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import { getCurrentUser, logout } from "../auth/auth";
+import logo from "../assets/logo.png";
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -35,12 +36,17 @@ export default function Home() {
     }
   };
 
-
   return (
     <div className="home-container">
+      {/* NAVBAR */}
       <nav className="navbar">
         <div className="nav-left">
-          <h2 className="logo">mAIdan</h2>
+          <img
+            src={logo}
+            alt="Maidan Logo"
+            className="logo-image"
+            onClick={() => navigate("/")}
+          />
         </div>
 
         <div className="nav-center">
@@ -53,14 +59,14 @@ export default function Home() {
 
             {showServices && (
               <div className="dropdown-menu">
-                <button onClick={goToProtected}>
-                  Interview
+                <button onClick={() => navigate("/interviews")}>
+                  Interviews
                 </button>
-                <button onClick={() => navigate("/services/ai")}>
-                  AI Models
+                <button onClick={() => goToProtected()}>
+                  AI Assistant
                 </button>
                 <button onClick={() => navigate("/services/consulting")}>
-                  Colaborations
+                  Collaborations
                 </button>
               </div>
             )}
@@ -95,9 +101,10 @@ export default function Home() {
         </div>
       </nav>
 
+      {/* MAIN CONTENT */}
       <main className="content">
         <h1>Welcome to Maidan</h1>
-        <p>AI-powered simplicity. Let’s build something smart.</p>
+        <p>AI-powered simplicity. Let’s build something smart together.</p>
       </main>
     </div>
   );
