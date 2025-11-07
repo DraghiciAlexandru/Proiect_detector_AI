@@ -40,14 +40,14 @@ export default function Interview() {
     }
     fetchUser();
 
-    const welcome = interviewService.getIntroductionMessage(domain, level);
+    // const welcome = interviewService.getIntroductionMessage(domain, level);
 
-    setHistory([
-      {
-        role: "assistant",
-        text: welcome
-      }
-    ]);
+    // setHistory([
+    //   {
+    //     role: "assistant",
+    //     text: welcome
+    //   }
+    // ]);
     generateNextQuestion();
     setLoading(false);
   }, []);
