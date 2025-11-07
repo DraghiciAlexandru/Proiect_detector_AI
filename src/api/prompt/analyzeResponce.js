@@ -1,14 +1,16 @@
-
 class analyzeResponcePrompt {
 
     static analyzeSingleResponse(candidateResponse, questionContext) {
-        return prompt = `
-            You are an AI detection specialist analyzing technical interview responses. Your task is to identify if the CANDIDATE's answers show signs of AI assistance.
+        return `
+You are an AI detection specialist and technical evaluator analyzing interview responses. Your task is to:
+1. Detect AI assistance in the candidate's answer
+2. Evaluate the accuracy and quality of their technical response
 
 CRITICAL ANALYSIS GUIDELINES:
 - Focus ONLY on the CANDIDATE's responses (ignore interviewer questions)
 - Technical interviews often have precise, well-structured answers - this doesn't automatically mean AI
 - Look for UNNATURAL patterns, not just "good" answers
+- Evaluate technical accuracy based on domain knowledge and question context
 
 KEY AI INDICATORS TO DETECT:
 1. UNNATURAL CONSISTENCY: Perfect grammar and structure across ALL responses regardless of question complexity
@@ -23,23 +25,24 @@ INTERVIEW CONTEXT:
 - Expected Level: ${questionContext.level}
 - Candidate should have ${questionContext.level}-appropriate knowledge
 
-QUESTION: ${questionContext.question}
-CANDIDATE'S ANSWER: ${candidateResponse}
+QUESTION: "${questionContext.question}"
+CANDIDATE'S ANSWER: "${candidateResponse}"
 
 ANALYSIS FOCUS:
 - Compare candidate's demonstrated knowledge vs expected level
 - Look for inconsistency in knowledge depth
 - Check if answers feel "canned" or overly rehearsed
 - Identify if complex concepts are explained without appropriate build-up
+- Evaluate technical accuracy and completeness
 
 Respond with STRICT JSON format only:
 {
   "confidence": 0.0 to 1.0,
   "classification": "human" or "ai",
   "key_indicators": ["specific pattern 1", "pattern 2", ...],
-  "reasoning": "Detailed analysis focusing on why this classification was chosen"
-};
-        `;
+  "reasoning": "Detailed analysis focusing on why this classification was chosen",
+  "accuracy": 0.0 to 1.0
+}`;
     }
 
 }
