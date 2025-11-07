@@ -49,7 +49,7 @@ export default function CybersecurityBeginner() {
         </p>
 
         <div className="cyber-actions">
-          <button className="start-btn" onClick={() => alert("Starting soon!")}>
+          <button className="start-btn" onClick={() => navigate("/interview/cybersecurity/beginner")  }>
             Start Interview
           </button>
           <button className="back-btn" onClick={() => navigate("/interviews")}>

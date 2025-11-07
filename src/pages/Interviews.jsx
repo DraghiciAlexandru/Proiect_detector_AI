@@ -66,7 +66,7 @@ export default function Interviews() {
         },
       };
       saveProgress(next);
-      navigate("/interview/cybersecurity/beginner");
+      navigate("/cybersecurity-beginner");
       return;
     }
 

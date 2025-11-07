@@ -11,9 +11,10 @@ import Test from "./pages/Test.jsx";
 import Profile from "./pages/Profile.jsx";
 import Interviews from "./pages/Interviews.jsx"; // ✅ Interviews
 import CybersecurityBeginner from "./pages/CybersecurityBeginner.jsx";
+import Interview from "./pages/Interview.jsx";
 
 createRoot(document.getElementById("root")).render(
-  <StrictMode>
+  // <StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />             
@@ -23,8 +24,9 @@ createRoot(document.getElementById("root")).render(
         <Route path="/profile" element={<Profile />} />   
         <Route path="/interviews" element={<Interviews />} />  {/* ✅ Interviews */}
         <Route path="/test" element={<Test />} />  
-        <Route path="/interview/cybersecurity/beginner" element={<CybersecurityBeginner />} />       
+        <Route path='/interview/:domain/:level' element={<Interview/>}/>
+        <Route path="/cybersecurity-beginner" element={<CybersecurityBeginner />} />       
       </Routes>
     </BrowserRouter>
-  </StrictMode>
+  // </StrictMode>
 );
