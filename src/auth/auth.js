@@ -3,10 +3,20 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   signInWithEmailAndPassword,
+  onAuthStateChanged,
+  setPersistence,
+  browserLocalPersistence
 } from "firebase/auth";
 import app from "../firebase/firebase";
 
 const auth = getAuth(app);
+
+// ✅ make session persist across refreshes
+setPersistence(auth, browserLocalPersistence)
+  .then(() => {
+    console.log("Auth persistence set to local.");
+  })
+  .catch((err) => console.error("Persistence error:", err));
 
 export async function signUp(email, password) {
   try {
@@ -43,7 +53,12 @@ export async function logout() {
   console.log("User signed out");
 }
 
-// 👇 THIS is the one that was missing
-export async function getCurrentUser() {
+// ✅ simple getter (can return null initially)
+export function getCurrentUser() {
   return auth.currentUser;
+}
+
+// ✅ new: live auth state listener
+export function listenToAuthChanges(callback) {
+  return onAuthStateChanged(auth, callback);
 }
