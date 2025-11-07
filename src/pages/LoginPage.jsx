@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./LoginPage.css";
 import { FaGoogle, FaApple } from "react-icons/fa";
+import { signIn } from "../auth/auth";
 
 export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
@@ -11,13 +12,14 @@ export default function LoginPage() {
 
   const handleLogin = () => {
     // You can add real authentication logic here later
-    navigate("/home");
-    console.log(email, password);
-
-
+    signIn(email, password).then((success) => {
+      if (success) {
+        navigate("/home");
+      } else {
+        alert("Login failed. Please check your credentials and try again.");
+      }
+    });
   };
-
-
 
   return (
     <div className="login-container">
