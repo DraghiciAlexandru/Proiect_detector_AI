@@ -10,16 +10,15 @@ export default function LoginPage() {
   const [password, setPassword] = useState("")
   const [email, setemail] = useState("")
 
-  const handleLogin = () => {
-    // You can add real authentication logic here later
-    signIn(email, password).then((success) => {
-      if (success) {
-        navigate("/home");
-      } else {
-        alert("Login failed. Please check your credentials and try again.");
-      }
-    });
-  };
+  const handleLogin = async () => {
+  const success = await signIn(email, password);
+    if (success) {
+      navigate("/"); // now this will actually load Home
+
+    } else {
+      alert("Login failed. Please check your credentials and try again.");
+    }
+  };  
 
   return (
     <div className="login-container">
