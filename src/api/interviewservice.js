@@ -3,6 +3,7 @@ import axios from "axios";
 import questions from "../questions/questions.js";
 import { singleQuestion } from "./prompt/singleQuestion.js"
 import { followUpQuestion } from "./prompt/followUp.js";
+import { wellcomePrompt } from "./prompt/wellcomePrompt.js";
 import { detectAi } from "./prompt/detectAi.js";
 import { analyzeResponcePrompt } from "./prompt/analyzeResponce.js";
 
@@ -45,6 +46,43 @@ class InterviewService {
         const role = this.getInterviewerRole(domain);
 
         return singleQuestion.buildQuestionPrompt(domain, level, currentQuestion, conversationHistory, role);
+    }
+
+    async getIntroductionMessage(domain, level) {
+        const role = this.getInterviewerRole(domain);
+        const prompt =  wellcomePrompt.buildIntroductionPrompt(domain, level, role);
+
+        const headers = {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.apiKey}`,
+        };
+
+        const data = {
+            model: this.baseModel,
+            messages: [
+                {
+                    role: "system",
+                    content: `You are a technical interviewer. Stay in character and ask questions clearly.`
+                },
+                { role: "user", content: prompt }
+            ],
+            temperature: 0.7,
+            max_tokens: 150
+        };
+
+        try {
+            const response = await axios.post(this.baseUrl, data, { headers });
+            const msg = response.data.choices[0].message.content;
+            
+            return msg;
+        } catch (error) {
+            console.error(
+                "Error generating welcome message:",
+                error.response ? error.response.data : error.message
+            );
+            throw error;
+        }
+
     }
 
     // Get a random question from the database

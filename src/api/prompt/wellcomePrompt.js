@@ -1,6 +1,6 @@
 class wellcomePrompt {
 
-    buildIntroductionPrompt(domain, level, role) {
+    static buildIntroductionPrompt(domain, level, role) {
     return `You are ${role}, conducting a technical interview for a ${level} level candidate.
 
 Generate a welcoming introduction that includes:
@@ -22,4 +22,4 @@ Generate a natural, conversational introduction:`;
 }
 
 }
-export { buildIntroductionPrompt };
+export { wellcomePrompt };

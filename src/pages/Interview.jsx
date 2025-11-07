@@ -24,7 +24,7 @@ export default function Interview() {
   const [history, setHistory] = useState([]);
   const [lastQuestion, setLastQuestion] = useState("");
   const [answer, setAnswer] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Track which interviews are finished
   const [finishedConversations, setFinishedConversations] = useState([]);
@@ -39,7 +39,17 @@ export default function Interview() {
       setUser(cu);
     }
     fetchUser();
-    generateNextQuestion(); // Start the first question automatically
+
+    const welcome = interviewService.getIntroductionMessage(domain, level);
+
+    setHistory([
+      {
+        role: "assistant",
+        text: welcome
+      }
+    ]);
+    generateNextQuestion();
+    setLoading(false);
   }, []);
 
   const currentConversation = conversations.find((c) => c.id === currentId);

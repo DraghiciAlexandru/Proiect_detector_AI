@@ -1,7 +1,7 @@
 
 class analyzeResponcePrompt {
 
-    analyzeSingleResponse(candidateResponse, questionContext) {
+    static analyzeSingleResponse(candidateResponse, questionContext) {
         return prompt = `
             You are an AI detection specialist analyzing technical interview responses. Your task is to identify if the CANDIDATE's answers show signs of AI assistance.
 

@@ -1,9 +1,7 @@
 
 class singleQuestion {
 
-    buildQuestionPrompt(domain, level, currentQuestion, conversationHistory = [], role) {
-            const role = this.getInterviewerRole(domain);
-
+    static buildQuestionPrompt(domain, level, currentQuestion, conversationHistory = [], role) {
             return `You are ${role}, conducting a technical interview for a ${level} level candidate.
 
     DOMAIN: ${domain}

@@ -1,8 +1,6 @@
 class detectAi {
 
-    buildDetectionPrompt(conversationHistory, interviewContext, fullTranscript) {
-        const fullTranscript = conversationHistory.join('\n\n');
-
+    static buildDetectionPrompt(conversationHistory, interviewContext, fullTranscript) {
         return `Analyze the following interview transcript and determine if the CANDIDATE's responses show signs of AI assistance or generation.
 
 INTERVIEW CONTEXT:

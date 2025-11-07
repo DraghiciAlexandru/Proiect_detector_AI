@@ -1,9 +1,7 @@
 
 class followUpQuestion {
 
-    buildFollowUpPrompt(domain, level, originalQuestion, candidateAnswer, role) {
-            const role = this.getInterviewerRole(domain);
-
+    static buildFollowUpPrompt(domain, level, originalQuestion, candidateAnswer, role) {
             return `You are ${role}. The candidate just answered your question.
 
 ORIGINAL QUESTION: "${originalQuestion}"
