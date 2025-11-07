@@ -10,23 +10,12 @@ export default function Home() {
   const [showServices, setShowServices] = useState(false);
   const navigate = useNavigate();
 
-  // keep user logged in on refresh
   useEffect(() => {
-    // subscribe to Firebase auth changes
-    const unsub = listenToAuthChanges((firebaseUser) => {
-      setUser(firebaseUser);
-    });
-
-    // also do an initial read (optional, but okay)
+    const unsub = listenToAuthChanges((firebaseUser) => setUser(firebaseUser));
     (async () => {
-      try {
-        const currentUser = await getCurrentUser();
-        if (currentUser) setUser(currentUser);
-      } catch (err) {
-        console.error("Error getting user:", err);
-      }
+      const current = await getCurrentUser();
+      if (current) setUser(current);
     })();
-
     return () => unsub();
   }, []);
 
@@ -36,22 +25,8 @@ export default function Home() {
     setShowUserMenu(false);
   };
 
-  const goToProtected = () => {
-    if (user) {
-      navigate("/app");
-    } else {
-      navigate("/login");
-    }
-  };
-
-  // 🔒 Interviews protected too
-  const goToInterviews = () => {
-    if (user) {
-      navigate("/interviews");
-    } else {
-      navigate("/login");
-    }
-  };
+  const goToProtected = () => (user ? navigate("/app") : navigate("/login"));
+  const goToInterviews = () => (user ? navigate("/interviews") : navigate("/login"));
 
   return (
     <div className="home-container">
@@ -60,7 +35,7 @@ export default function Home() {
         <div className="nav-left">
           <img
             src={logo}
-            alt="Maidan Logo"
+            alt="VerifAI Logo"
             className="logo-image"
             onClick={() => navigate("/")}
           />
@@ -73,22 +48,16 @@ export default function Home() {
             onMouseLeave={() => setShowServices(false)}
           >
             <button className="nav-btn">Services</button>
-
             {showServices && (
               <div className="dropdown-menu">
-                <button onClick={goToInterviews}>
-                  Interviews
-                </button>
-                <button onClick={goToProtected}>
-                  AI Assistant
-                </button>
+                <button onClick={goToInterviews}>Interviews</button>
+                <button onClick={goToProtected}>AI Assistant</button>
                 <button onClick={() => navigate("/services/consulting")}>
                   Collaborations
                 </button>
               </div>
             )}
           </div>
-
           <button className="nav-btn">Features</button>
           <button className="nav-btn">About</button>
         </div>
@@ -102,11 +71,10 @@ export default function Home() {
             <div className="user-wrapper">
               <div
                 className="user-info"
-                onClick={() => setShowUserMenu((prev) => !prev)}
+                onClick={() => setShowUserMenu((p) => !p)}
               >
                 {user.email}
               </div>
-
               {showUserMenu && (
                 <div className="user-menu">
                   <button onClick={() => navigate("/profile")}>Profile</button>
@@ -118,11 +86,37 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* MAIN CONTENT */}
+      {/* HERO SECTION */}
       <main className="content">
-        <h1>Welcome to Maidan</h1>
-        <p>AI-powered simplicity. Let’s build something smart together.</p>
+        <h1>Welcome to VerifAI</h1>
+        <p>
+          Test your knowledge, train smarter, and verify your authenticity with AI.
+        </p>
+
       </main>
+
+      {/* FEATURES PREVIEW */}
+      <section className="features-preview">
+        <div className="feature-card">
+          <h3>💬 AI Interviews</h3>
+          <p>Simulate real job interviews and receive instant AI-driven feedback.</p>
+        </div>
+
+        <div className="feature-card">
+          <h3>🧠 Skill Verification</h3>
+          <p>Prove your expertise with measurable, AI-verified performance scoring.</p>
+        </div>
+
+        <div className="feature-card">
+          <h3>🤖 Authenticity Detection</h3>
+          <p>Our models detect AI-generated answers to ensure fair evaluations.</p>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="home-footer">
+        <p>© {new Date().getFullYear()} VerifAI — Built with intelligence.</p>
+      </footer>
     </div>
   );
 }
