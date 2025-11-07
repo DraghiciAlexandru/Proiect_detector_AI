@@ -59,7 +59,7 @@ export default function App() {
         <header className="p-4 border-b">
           <h1 className="text-lg font-semibold">ChatGPT-like React App</h1>
         </header>
-
+        
         <main className="flex-1 overflow-y-auto p-4 space-y-4 bg-gradient-to-b from-white to-gray-50">
           {messages.map((m, i) => (
             <div
