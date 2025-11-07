@@ -1,6 +1,11 @@
 import axios from "axios";
 
 import questions from "../questions/questions.js";
+import { singleQuestion } from "./prompt/singleQuestion.js"
+import { followUpQuestion } from "./prompt/followUp.js";
+import { detectAi } from "./prompt/detectAi.js";
+import { analyzeResponcePrompt } from "./prompt/analyzeResponce.js";
+
 // Usage example and exports
 const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
 
@@ -24,12 +29,12 @@ class InterviewService {
     // Define interviewer roles for different domains
     getInterviewerRole(domain) {
         const roles = {
-            "JavaScript": "Senior JavaScript Developer at Google",
-            "Python": "Python Tech Lead at a AI startup",
-            "React": "React Core Team Member",
-            "Node.js": "Backend Architect at Netflix",
+            "JavaScript": "Senior JavaScript Developer",
+            "Python": "Python Tech Lead",
+            "React": "React Core Developer",
+            "Node.js": "Backend Architect",
             "AI/ML": "Machine Learning Research Scientist",
-            "DevOps": "Site Reliability Engineer at AWS",
+            "DevOps": "Site Reliability Engineer",
             "default": "Technical Interviewer"
         };
         return roles[domain] || roles.default;
@@ -39,23 +44,7 @@ class InterviewService {
     buildQuestionPrompt(domain, level, currentQuestion, conversationHistory = []) {
         const role = this.getInterviewerRole(domain);
 
-        return `You are ${role}, conducting a technical interview for a ${level} level candidate.
-
-DOMAIN: ${domain}
-LEVEL: ${level}
-CURRENT QUESTION: "${currentQuestion}"
-
-INTERVIEW INSTRUCTIONS:
-1. Ask this question clearly and professionally
-2. Adapt the phrasing based on the candidate's level (${level})
-3. Maintain your role as ${role}
-4. Be concise but clear
-5. Do not provide hints or answers
-6. Wait for the candidate's response
-
-${conversationHistory.length > 0 ? 'CONVERSATION HISTORY:\n' + conversationHistory.join('\n') + '\n' : ''}
-
-Ask the question now:`;
+        return singleQuestion.buildQuestionPrompt(domain, level, currentQuestion, conversationHistory, role);
     }
 
     // Get a random question from the database
@@ -133,19 +122,7 @@ Ask the question now:`;
 
     // Build follow-up question based on candidate's answer
     buildFollowUpPrompt(domain, level, originalQuestion, candidateAnswer, role) {
-        return `You are ${role}. The candidate just answered your question.
-
-ORIGINAL QUESTION: "${originalQuestion}"
-CANDIDATE'S ANSWER: "${candidateAnswer}"
-DOMAIN: ${domain}
-LEVEL: ${level}
-
-Based on their answer, provide:
-1. A brief acknowledgment
-2. A relevant follow-up question or clarification request
-3. Keep it professional and focused
-
-Your response:`;
+        return followUpQuestion.buildFollowUpPrompt(domain, level, originalQuestion, candidateAnswer, role);
     }
 
     async generateFollowUpQuestion(domain, level, originalQuestion, candidateAnswer) {
@@ -221,34 +198,7 @@ Your response:`;
     buildDetectionPrompt(conversationHistory, interviewContext) {
         const fullTranscript = conversationHistory.join('\n\n');
 
-        return `Analyze the following interview transcript and determine if the CANDIDATE's responses show signs of AI assistance or generation.
-
-INTERVIEW CONTEXT:
-- Domain: ${interviewContext.domain}
-- Level: ${interviewContext.level}
-- Total conversation turns: ${conversationHistory.length}
-
-FULL TRANSCRIPT:
-${fullTranscript}
-
-ANALYSIS CRITERIA:
-1. Response Patterns: Look for unusually consistent sentence structure, perfect grammar, or lack of human hesitation
-2. Content Depth: Check if answers are overly generic or lack personal experience examples
-3. Timing Patterns: Note if responses show artificial consistency in length and complexity
-4. Domain Knowledge: Assess if answers match the expected level for ${interviewContext.level} level
-5. Conversational Flow: Look for unnatural transitions or overly structured responses
-
-RESPONSE FORMAT (JSON only):
-{
-  "confidence": 0.85,
-  "classification": "human" | "ai",
-  "key_indicators": ["indicator1", "indicator2", ...],
-  "reasoning": "Brief explanation of the classification decision",
-  "human_like_score": 0.75,
-  "analysis_summary": "Short summary of findings"
-}
-
-Provide ONLY the JSON response, no additional text.`;
+        return detectAi.buildDetectionPrompt(conversationHistory, interviewContext, fullTranscript);
     }
 
 
@@ -306,44 +256,7 @@ Provide ONLY the JSON response, no additional text.`;
 
     // Real-time analysis during interview (optional)
     async analyzeSingleResponse(candidateResponse, questionContext) {
-        const prompt = `
-            You are an AI detection specialist analyzing technical interview responses. Your task is to identify if the CANDIDATE's answers show signs of AI assistance.
-
-CRITICAL ANALYSIS GUIDELINES:
-- Focus ONLY on the CANDIDATE's responses (ignore interviewer questions)
-- Technical interviews often have precise, well-structured answers - this doesn't automatically mean AI
-- Look for UNNATURAL patterns, not just "good" answers
-
-KEY AI INDICATORS TO DETECT:
-1. UNNATURAL CONSISTENCY: Perfect grammar and structure across ALL responses regardless of question complexity
-2. LACK OF PERSONALIZATION: No specific examples, anecdotes, or personal experiences
-3. GENERIC RESPONSES: Answers that could apply to any similar question without specificity
-4. UNNATURAL DEPTH: Beginner candidates giving expert-level comprehensive answers
-5. REPETITIVE PATTERNS: Same sentence structures, transition words, or phrasing patterns
-6. MISSING HUMAN ELEMENTS: No hesitation markers, self-correction, or natural conversational flow
-
-INTERVIEW CONTEXT:
-- Domain: ${questionContext.domain}
-- Expected Level: ${questionContext.level}
-- Candidate should have ${questionContext.level}-appropriate knowledge
-
-QUESTION: ${questionContext.question}
-CANDIDATE'S ANSWER: ${candidateResponse}
-
-ANALYSIS FOCUS:
-- Compare candidate's demonstrated knowledge vs expected level
-- Look for inconsistency in knowledge depth
-- Check if answers feel "canned" or overly rehearsed
-- Identify if complex concepts are explained without appropriate build-up
-
-Respond with STRICT JSON format only:
-{
-  "confidence": 0.0 to 1.0,
-  "classification": "human" or "ai",
-  "key_indicators": ["specific pattern 1", "pattern 2", ...],
-  "reasoning": "Detailed analysis focusing on why this classification was chosen"
-};
-        `;
+        const prompt = analyzeResponcePrompt.analyzeSingleResponse(candidateResponse, questionContext);
 
         const url = "https://api.openai.com/v1/chat/completions";
 
