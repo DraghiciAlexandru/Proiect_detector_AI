@@ -423,4 +423,3 @@ export default interviewService;
 
 // export const getDomains = () => interviewService.getAvailableDomains();
 // export const getLevels = (domain) => interviewService.getAvailableLevels(domain);
-

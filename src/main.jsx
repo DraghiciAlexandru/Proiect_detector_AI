@@ -9,7 +9,7 @@ import SignUpPage from './pages/SignUpPage.jsx';
 import App from './App.jsx'; // importul pentru chat
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
+  // <StrictMode>
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Home />} />       {/* home */}
@@ -19,5 +19,5 @@ createRoot(document.getElementById('root')).render(
         <Route path='/test' element={<Test/>}/>
       </Routes>
     </BrowserRouter>
-  </StrictMode>
+  // </StrictMode>
 )
