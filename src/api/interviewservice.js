@@ -235,7 +235,6 @@ class InterviewService {
 
     buildDetectionPrompt(conversationHistory, interviewContext) {
         const fullTranscript = conversationHistory.join('\n\n');
-
         return detectAi.buildDetectionPrompt(conversationHistory, interviewContext, fullTranscript);
     }
 

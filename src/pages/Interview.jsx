@@ -2,64 +2,53 @@ import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import "./Interview.css";
 import { getCurrentUser, logout } from "../auth/auth";
-import interviewService from "../api/interviewservice"; // make sure this exists
+import interviewService from "../api/interviewservice";
+import { createInterview, addInterviewQuestion, finishInterview } from "../db/db";
 
 export default function Interview() {
-
   const { domain, level } = useParams();
+  const navigate = useNavigate();
 
+  // Chat + interview UI state
   const [conversations, setConversations] = useState([
-    {
-      id: 1,
-      title: "First chat",
-      score: 0,
-      messages: [
-        { role: "assistant", text: "Hi! I'm your AI assistant. How can I help?" },
-      ],
-    },
+    { id: 1, title: "First chat", score: 0 }
   ]);
   const [currentId, setCurrentId] = useState(1);
-
-  // Interview flow state
   const [history, setHistory] = useState([]);
   const [lastQuestion, setLastQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(true);
-
-  // Track which interviews are finished
   const [finishedConversations, setFinishedConversations] = useState([]);
 
+  const [interviewDocId, setInterviewDocId] = useState(null);
   const [user, setUser] = useState(null);
-  const [showUserMenu, setShowUserMenu] = useState(false);
-  const navigate = useNavigate();
 
+  const [showUserMenu, setShowUserMenu] = useState(false);
+
+  const [showFinalScore, setShowFinalScore] = useState(false);
+  const [detectionResult, setDetectionResult] = useState(null);
+  const [finalScore, setFinalScore] = useState(0);
+
+  // Fetch user + start interview in DB
   useEffect(() => {
-    async function fetchUser() {
+    async function init() {
       const cu = await getCurrentUser();
       setUser(cu);
+
+      if (cu) {
+        const docId = await createInterview(cu.uid, domain, level);
+        setInterviewDocId(docId);
+      }
+
+      await generateNextQuestion();
+      setLoading(false);
     }
-    fetchUser();
-
-    // const welcome = interviewService.getIntroductionMessage(domain, level);
-
-    // setHistory([
-    //   {
-    //     role: "assistant",
-    //     text: welcome
-    //   }
-    // ]);
-    generateNextQuestion();
-    setLoading(false);
+    init();
   }, []);
 
-  const currentConversation = conversations.find((c) => c.id === currentId);
-
-  // ---------------- Interview functions ----------------
   async function generateNextQuestion() {
     try {
       const result = await interviewService.generateInterviewQuestion(domain, level, history);
-      console.log("Generated Question:", result);
-
       setLastQuestion(result.interviewerQuestion);
       setHistory(prev => [...prev, { role: "assistant", text: result.interviewerQuestion }]);
     } catch (err) {
@@ -68,7 +57,7 @@ export default function Interview() {
   }
 
   async function sendAnswer() {
-    if (!answer.trim()) return;
+    if (!answer.trim() || !user || !interviewDocId) return;
 
     const userAnswer = answer.trim();
     setAnswer("");
@@ -79,35 +68,143 @@ export default function Interview() {
       const result = await interviewService.analyzeSingleResponse(userAnswer, {
         question: lastQuestion,
         domain,
-        level,
+        level
       });
-      console.log("Analysis result:", result);
+
+      console.log(result);
+
+      // 🔥 SAVE ANSWER + RESULT TO FIRESTORE
+      await addInterviewQuestion(user.uid, interviewDocId, {
+        question: lastQuestion,
+        answer: userAnswer,
+        confidence: result.confidence,
+        classification: result.classification,
+        key_indicators: result.key_indicators,
+        reasoning: result.reasoning,
+        human_like_score: result.human_like_score,
+        analysis_summary: result.analysis_summary
+      });
 
       if (result.feedback) {
         setHistory(prev => [...prev, { role: "assistant", text: result.feedback }]);
       }
 
-      // Update score in conversation (even if interview not finished)
-      const newScore = Math.floor(Math.random() * 100);
-      setConversations(prev =>
-        prev.map(conv => conv.id === currentId ? { ...conv, score: newScore } : conv)
-      );
+      // const newScore = Math.floor(Math.random() * 100);
+      // setConversations(prev =>
+      //   prev.map(c => (c.id === currentId ? { ...c, score: newScore } : c))
+      // );
 
-      // Example: mark interview finished after 5 questions
-      const userQuestionsCount = history.filter(m => m.role === "user").length + 1;
-      if (userQuestionsCount >= 5) {
+      const answeredCount = history.filter(m => m.role === "user").length + 1;
+
+      // Interview end after 5 questions
+      if (answeredCount >= 2) {
         setFinishedConversations(prev => [...prev, currentId]);
-      }
 
-      // Automatically generate next question if interview not finished
-      if (!finishedConversations.includes(currentId)) {
+        let finalScore = await showFinalResults();
+        // 🔥 SAVE FINAL SCORE TO FIRESTORE
+
+        await finishInterview(user.uid, interviewDocId, finalScore);
+
+        // setHistory(prev => [
+        //   ...prev,
+        //   { role: "assistant", text: `Interview finished! Final score: ${newScore}` }
+        // ]);
+
+      } else {
         await generateNextQuestion();
       }
+
     } catch (err) {
       setHistory(prev => [...prev, { role: "assistant", text: "Error: " + err.message }]);
     }
 
     setLoading(false);
+  }
+
+  async function showFinalResults() {
+    setLoading(true);
+    let score = 0;
+    try {
+      // Convert history to conversation format for AI detection
+      const conversationHistory = history.map(msg =>
+        `${msg.role === 'user' ? 'Candidate' : 'Interviewer'}: ${msg.text}`
+      );
+
+      const interviewContext = {
+        domain: domain,
+        level: level
+      };
+
+      // Run AI detection on complete conversation
+      const detectionResults = await interviewService.runAIDetection(
+        conversationHistory,
+        interviewContext
+      );
+
+      console.log("AI Detection Results:", detectionResults);
+
+      // Calculate final score based on AI detection
+      if (detectionResults.classification === 'human') {
+        // Higher score for human-like responses
+        score = Math.round(detectionResults.confidence * 100);
+      } else {
+        // Penalty for AI-detected responses
+        score = Math.round((1 - detectionResults.confidence) * 40); // Max 40 for AI responses
+      }
+
+      // Add some randomness to simulate technical evaluation (optional)
+      const technicalBonus = Math.floor(Math.random() * 20);
+      score = Math.min(score + technicalBonus, 100);
+
+      setDetectionResult(detectionResults);
+      setFinalScore(score);
+      setShowFinalScore(true);
+
+      // Update conversation score
+      setConversations(prev =>
+        prev.map(conv =>
+          conv.id === currentId ? { ...conv, score: score } : conv
+        )
+      );
+
+      // Add final results to chat history
+      const resultsMessage = generateResultsMessage(detectionResults, score);
+      setHistory(prev => [...prev, {
+        role: "assistant",
+        text: resultsMessage
+      }]);
+
+    } catch (error) {
+      console.error("Error calculating final results:", error);
+      setHistory(prev => [...prev, {
+        role: "assistant",
+        text: "Error calculating final results. Please try again."
+      }]);
+    }
+    setLoading(false);
+    return score;
+  }
+
+  // NEW: Generate human-readable results message
+  function generateResultsMessage(detectionResults, score) {
+    const { classification, confidence, key_indicators, reasoning } = detectionResults;
+
+    const confidencePercent = Math.round(confidence * 100);
+
+    let message = `🎯 **INTERVIEW COMPLETE** 🎯\n\n`;
+    message += `**Final Score: ${score}/100**\n\n`;
+
+    if (classification === 'human') {
+      message += `✅ **Authenticity: Human Response**\n`;
+      message += `Confidence: ${confidencePercent}%\n\n`;
+    } else {
+      message += `🤖 **Authenticity: AI-Assisted Response**\n`;
+      message += `AI Detection Confidence: ${confidencePercent}%\n\n`;
+    }
+
+    message += `\nThank you for completing the interview!`;
+
+    return message;
   }
 
   function handleKeyDown(e) {
@@ -117,39 +214,23 @@ export default function Interview() {
     }
   }
 
-  const handleLoginClick = () => navigate("/login");
+  function handleNewChat() {
+    const newId = Date.now();
+    setConversations(prev => [...prev, { id: newId, title: "New interview", score: 0 }]);
+    setCurrentId(newId);
+    setHistory([]);
+    generateNextQuestion();
+  }
 
-  const handleLogout = async () => {
+  async function handleLogout() {
     await logout();
     setUser(null);
     setShowUserMenu(false);
-  };
-
-  const handleNewChat = () => {
-    const newId = Date.now();
-    const newConv = {
-      id: newId,
-      title: "New interview",
-      score: 0,
-      messages: [
-        { role: "assistant", text: "New conversation started. Ask me anything." },
-      ],
-    };
-    setConversations(prev => [newConv, ...prev]);
-    setCurrentId(newId);
-    setHistory([]);
-    generateNextQuestion(); // start first question automatically
-  };
-
-  const handleTitleChange = (e) => {
-    const newTitle = e.target.value;
-    setConversations(prev =>
-      prev.map(conv => conv.id === currentId ? { ...conv, title: newTitle } : conv)
-    );
-  };
+  }
 
   return (
     <div className="app-page">
+
       {/* NAVBAR */}
       <nav className="app-navbar">
         <div className="app-nav-left" onClick={() => navigate("/")}>
@@ -157,10 +238,13 @@ export default function Interview() {
         </div>
         <div className="app-nav-right">
           {!user ? (
-            <button className="login-btn" onClick={handleLoginClick}>Login</button>
+            <button className="login-btn" onClick={() => navigate("/login")}>Login</button>
           ) : (
             <div className="user-wrapper">
-              <div className="user-info" onClick={() => setShowUserMenu(p => !p)}>
+              <div
+                className="user-info"
+                onClick={() => setShowUserMenu(p => !p)}
+              >
                 {user.email}
               </div>
               {showUserMenu && (
@@ -176,14 +260,13 @@ export default function Interview() {
 
       <div className="interview-title">
         <h1>
-          Interview: {domain?.charAt(0).toUpperCase() + domain?.slice(1)} -{" "}
-          {level?.charAt(0).toUpperCase() + level?.slice(1)}
+          Interview: {domain?.toUpperCase()} - {level?.toUpperCase()}
         </h1>
       </div>
 
-      {/* FULLSCREEN BODY */}
       <div className="app-body">
-        {/* LEFT SIDEBAR */}
+
+        {/* SIDEBAR */}
         <aside className="sidebar">
           <div className="sidebar-header">
             <span>Interviews</span>
@@ -202,41 +285,34 @@ export default function Interview() {
                     Score: {finishedConversations.includes(conv.id) ? conv.score : "?"}
                   </p>
                 </div>
-                <button
-                  className="delete-chat-btn"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setConversations(prev => {
-                      const updated = prev.filter(c => c.id !== conv.id);
-                      return updated;
-                    });
-                  }}
-                >
-                  –
-                </button>
               </div>
             ))}
           </div>
         </aside>
 
-        {/* CHAT AREA */}
+        {/* CHAT */}
         <div className="chat-shell">
           <header className="chat-header">
             <input
               className="chat-title-input"
-              value={currentConversation?.title || ""}
-              onChange={handleTitleChange}
+              value={conversations.find(c => c.id === currentId)?.title || ""}
+              onChange={e =>
+                setConversations(prev =>
+                  prev.map(c => c.id === currentId ? { ...c, title: e.target.value } : c)
+                )
+              }
             />
           </header>
 
           <main className="chat-body">
-            {history.map((m, i) => (
-              <div key={i} className={m.role === "user" ? "msg-row user" : "msg-row bot"}>
-                <div className={m.role === "user" ? "msg-bubble user" : "msg-bubble bot"}>
-                  {m.text}
+            {history.map((msg, i) => (
+              <div key={i} className={`msg-row ${msg.role === "user" ? "user" : "bot"}`}>
+                <div className={`msg-bubble ${msg.role === "user" ? "user" : "bot"}`}>
+                  {msg.text}
                 </div>
               </div>
             ))}
+
             {loading && (
               <div className="msg-row bot">
                 <div className="msg-bubble bot typing">Typing...</div>
@@ -247,11 +323,17 @@ export default function Interview() {
           <footer className="chat-input">
             <textarea
               value={answer}
-              onChange={(e) => setAnswer(e.target.value)}
+              onChange={e => setAnswer(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Type your answer..."
+              disabled={finishedConversations.includes(currentId)}
             />
-            <button onClick={sendAnswer} disabled={loading}>Submit</button>
+            <button
+              onClick={sendAnswer}
+              disabled={loading || finishedConversations.includes(currentId)}
+            >
+              Submit
+            </button>
           </footer>
         </div>
       </div>
