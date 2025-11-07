@@ -71,13 +71,14 @@ export async function addInterviewQuestion(userId, interviewId, data) {
  * Save the final score and mark interview as finished.
  * Document path: /{userId}/{interviewId}
  */
-export async function finishInterview(userId, interviewId, score) {
+export async function finishInterview(userId, interviewId, scoreAi, scoreCorectness) {
   if (!userId || !interviewId) throw new Error("finishInterview: userId and interviewId are required");
 
   const interviewDocRef = doc(db, userId, interviewId);
 
   await updateDoc(interviewDocRef, {
-    finalScore: score,
+    scoreAi: scoreAi,
+    scoreCorectness: scoreCorectness,
     endedAt: serverTimestamp()
   });
 }
