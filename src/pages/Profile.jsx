@@ -60,14 +60,7 @@ export default function Profile() {
           />
         </div>
 
-        <div className="nav-center">
-          <button className="nav-btn" onClick={() => navigate("/")}>
-            Home
-          </button>
-          <button className="nav-btn" onClick={() => navigate("/app")}>
-            App
-          </button>
-        </div>
+
 
         <div className="nav-right">
           {!user ? (
