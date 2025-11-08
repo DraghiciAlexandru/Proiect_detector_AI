@@ -4,27 +4,29 @@ import "./CybersecurityBeginner.css";
 import logo from "../assets/logo.png";
 import coinSprite from "../assets/coin-sprite.png";
 import { getCurrentUser, listenToAuthChanges, logout } from "../auth/auth";
+import { getUserCoins } from "../db/db";
 
 export default function CybersecurityBeginner() {
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [coins, setCoins] = useState(120); // placeholder, swap with real value
+  const [coins, setCoins] = useState(0);
 
   useEffect(() => {
-    const unsub = listenToAuthChanges((firebaseUser) => {
-      setUser(firebaseUser);
+    const unsub = listenToAuthChanges(async (firebaseUser) => {
+      const userCoins = await getUserCoins(firebaseUser.uid);
+      setCoins(userCoins);
+      setUser(firebaseUser)
     });
-
     (async () => {
       const current = await getCurrentUser();
       if (current) {
         setUser(current);
-        // here you'd normally fetch coins for this user
+        const userCoins = await getUserCoins(current.uid);
+        setCoins(userCoins);
       }
     })();
-
     return () => unsub();
   }, []);
 

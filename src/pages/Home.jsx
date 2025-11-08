@@ -4,22 +4,27 @@ import "./Home.css";
 import { getCurrentUser, logout, listenToAuthChanges } from "../auth/auth";
 import logo from "../assets/logo.png";
 import coinSprite from "../assets/coin-sprite.png";
+import { getUserCoins } from "../db/db";
 
 export default function Home() {
   const [user, setUser] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showServices, setShowServices] = useState(false);
-  const [coins, setCoins] = useState(120); // mock value, replace with real data
+  const [coins, setCoins] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsub = listenToAuthChanges((firebaseUser) => setUser(firebaseUser));
+    const unsub = listenToAuthChanges(async (firebaseUser) => {
+      const userCoins = await getUserCoins(firebaseUser.uid);
+      setCoins(userCoins);
+      setUser(firebaseUser)
+    });
     (async () => {
       const current = await getCurrentUser();
       if (current) {
         setUser(current);
-        // here you’d normally fetch the user’s coins
-        // setCoins(current.coins || 0);
+        const userCoins = await getUserCoins(current.uid);
+        setCoins(userCoins);
       }
     })();
     return () => unsub();

@@ -7,7 +7,9 @@ import {
   createInterview,
   addInterviewQuestion,
   finishInterview,
-  fetchInterviewsByDomainAndLevel
+  fetchInterviewsByDomainAndLevel,
+  initUserCoins,
+  addUserCoins
 } from "../db/db";
 import logo from "../assets/logo.png";
 
@@ -68,7 +70,7 @@ export default function Interview() {
         active: true
       };
 
-      setConversations(sidebarItems);
+      setConversations([...sidebarItems]);
       setCurrentId(newId);
       if (!isAnyInterviewFinished) 
         await generateNextQuestion();
@@ -142,6 +144,10 @@ export default function Interview() {
 
         let [scoreAi, scoreCorrectness] = await showFinalResults();
         // 🔥 SAVE FINAL SCORE TO FIRESTORE
+
+        const coins = scoreAi >= 60 ? scoreCorrectness * 100 : 0;
+        await initUserCoins(user.uid);
+        await addUserCoins(user.uid, coins);
 
         await finishInterview(user.uid, interviewDocId, scoreAi, scoreCorrectness);
 

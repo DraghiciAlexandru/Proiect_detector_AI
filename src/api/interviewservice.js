@@ -238,7 +238,6 @@ class InterviewService {
         return detectAi.buildDetectionPrompt(conversationHistory, interviewContext, fullTranscript);
     }
 
-
     parseDetectionResult(detectionResult, conversationHistory) {
         try {
             // Try to parse as JSON first
