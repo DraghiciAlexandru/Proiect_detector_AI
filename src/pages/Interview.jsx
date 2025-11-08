@@ -3,7 +3,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import "./Interview.css";
 import { getCurrentUser, logout } from "../auth/auth";
 import interviewService from "../api/interviewservice";
-import { createInterview, addInterviewQuestion, finishInterview } from "../db/db";
+import {
+  createInterview,
+  addInterviewQuestion,
+  finishInterview,
+  fetchInterviewsByDomainAndLevel
+} from "../db/db";
 import logo from "../assets/logo.png";
 
 
@@ -11,41 +16,62 @@ export default function Interview() {
   const { domain, level } = useParams();
   const navigate = useNavigate();
 
-  // Chat + interview UI state
-  const [conversations, setConversations] = useState([
-    { id: 1, title: "First chat", score: 0 }
-  ]);
-  const [currentId, setCurrentId] = useState(1);
-  const [history, setHistory] = useState([]);
-  const [lastQuestion, setLastQuestion] = useState("");
+  const [user, setUser] = useState(null);
+  const [interviewDocId, setInterviewDocId] = useState(null);
+
+  const [conversations, setConversations] = useState([]); // sidebar list
+  const [currentId, setCurrentId] = useState(null);
+
+  const [history, setHistory] = useState([]); // displayed messages
+  const [readOnly, setReadOnly] = useState(false); // disables input on past interviews
   const [answer, setAnswer] = useState("");
   const [loading, setLoading] = useState(true);
+  const [lastQuestion, setLastQuestion] = useState("");
+
   const [finishedConversations, setFinishedConversations] = useState([]);
-
-  const [interviewDocId, setInterviewDocId] = useState(null);
-  const [user, setUser] = useState(null);
-
   const [showUserMenu, setShowUserMenu] = useState(false);
-
-  const [showFinalScore, setShowFinalScore] = useState(false);
-  const [detectionResult, setDetectionResult] = useState(null);
-  const [finalScore, setFinalScore] = useState(0);
-
   const [accuracyScores, setAccuracyScores] = useState([]);
   const [averageAccuracy, setAverageAccuracy] = useState(0);
+  const [detectionResult, setDetectionResult] = useState(null);
+  const [finalScore, setFinalScore] = useState(null);
+  const [showFinalScore, setShowFinalScore] = useState(false);
 
   // Fetch user + start interview in DB
   useEffect(() => {
     async function init() {
       const cu = await getCurrentUser();
       setUser(cu);
+      if (!cu) return;
 
-      if (cu) {
-        const docId = await createInterview(cu.uid, domain, level);
-        setInterviewDocId(docId);
-      }
+      // 1️⃣ Load previous interviews from DB
+      const past = await fetchInterviewsByDomainAndLevel(cu.uid, domain, level);
 
-      await generateNextQuestion();
+      const sidebarItems = past.map(i => ({
+        id: i.id,
+        title: `${domain} / ${level}`,
+        score: i.scoreAi ?? "?",
+        history: i.questions?.flatMap(q => [
+          { role: "assistant", text: q.question },
+          { role: "user", text: q.answer }
+        ]) ?? []
+      }));
+
+      // 2️⃣ Create new active interview
+      const newId = await createInterview(cu.uid, domain, level);
+      setInterviewDocId(newId);
+
+      const newConv = {
+        id: newId,
+        title: `${domain} / ${level}`,
+        score: "?",
+        history: [],
+        active: true
+      };
+
+      setConversations(sidebarItems);
+      setCurrentId(newId);
+      if (!isAnyInterviewFinished) 
+        await generateNextQuestion();
       setLoading(false);
     }
     init();
@@ -194,6 +220,10 @@ export default function Interview() {
         text: resultsMessage
       }]);
 
+      await addInterviewQuestion(user.uid, interviewDocId, {
+        question: resultsMessage,
+      });
+
     } catch (error) {
       console.error("Error calculating final results:", error);
       setHistory(prev => [...prev, {
@@ -205,6 +235,31 @@ export default function Interview() {
     return [scoreAi, scoreCorrectness];
   }
 
+  const isAnyInterviewFinished = finishedConversations.length > 0;
+
+  function loadConversation(id) {
+    const conv = conversations.find(c => c.id === id);
+    if (!conv) return;
+
+    setCurrentId(id);
+
+    // If ANY interview is finished, everything becomes read-only
+    if (isAnyInterviewFinished) {
+      setReadOnly(true);
+      setHistory(conv.history || []);
+      return;
+    }
+
+    // Normal behavior only when no interview was ever finished
+    if (conv.active) {
+      setReadOnly(false);
+    } else {
+      setReadOnly(true);
+      setHistory(conv.history || []);
+    }
+  }
+
+
   // NEW: Generate human-readable results message
   function generateResultsMessage(detectionResults, score) {
     const { classification, confidence, key_indicators, reasoning } = detectionResults;
@@ -213,15 +268,15 @@ export default function Interview() {
     const accuracyPercent = Math.round(averageAccuracy * 100);
 
     let message = `🎯 ** INTERVIEW COMPLETE ** 🎯\n\n`;
-    message += `** Final Score: ${ score }/100**\n`;
-    message += `** Technical Accuracy: ${ accuracyPercent }%**\n\n`;
+    message += `** Final Score: ${score}/100**\n`;
+    message += `** Technical Accuracy: ${accuracyPercent}%**\n\n`;
 
     if (classification === 'human') {
       message += `✅ ** Authenticity: Human Response **\n`;
-      message += `AI Detection Confidence: ${ confidencePercent }%\n\n`;
+      message += `AI Detection Confidence: ${confidencePercent}%\n\n`;
     } else {
       message += `🤖 ** Authenticity: AI - Assisted Response **\n`;
-      message += `AI Detection Confidence: ${ confidencePercent }%\n\n`;
+      message += `AI Detection Confidence: ${confidencePercent}%\n\n`;
     }
 
     message += `Thank you for completing the interview!`;
@@ -241,7 +296,8 @@ export default function Interview() {
     setConversations(prev => [...prev, { id: newId, title: "New interview", score: 0 }]);
     setCurrentId(newId);
     setHistory([]);
-    generateNextQuestion();
+    if (!isAnyInterviewFinished) 
+      generateNextQuestion();
   }
 
   async function handleLogout() {
@@ -304,13 +360,11 @@ export default function Interview() {
               <div
                 key={conv.id}
                 className={conv.id === currentId ? "sidebar-item active" : "sidebar-item"}
-                onClick={() => setCurrentId(conv.id)}
+                onClick={() => loadConversation(conv.id)}
               >
                 <div className="sidebar-item-content">
                   <p className="sidebar-title">{conv.title}</p>
-                  <p className="sidebar-sub">
-                    Score: {finishedConversations.includes(conv.id) ? conv.score : "?"}
-                  </p>
+                  <p className="sidebar-sub">Score: {conv.score}</p>
                 </div>
               </div>
             ))}
@@ -352,12 +406,12 @@ export default function Interview() {
               value={answer}
               onChange={e => setAnswer(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type your answer..."
-              disabled={finishedConversations.includes(currentId)}
+              placeholder={readOnly ? "Interview completed — read only mode" : "Type your answer..."}
+              disabled={readOnly}
             />
             <button
               onClick={sendAnswer}
-              disabled={loading || finishedConversations.includes(currentId)}
+              disabled={loading || readOnly}
             >
               Submit
             </button>
