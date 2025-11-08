@@ -3,18 +3,24 @@ import { useNavigate } from "react-router-dom";
 import "./Home.css";
 import { getCurrentUser, logout, listenToAuthChanges } from "../auth/auth";
 import logo from "../assets/logo.png";
+import coinSprite from "../assets/coin-sprite.png";
 
 export default function Home() {
   const [user, setUser] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showServices, setShowServices] = useState(false);
+  const [coins, setCoins] = useState(120); // mock value, replace with real data
   const navigate = useNavigate();
 
   useEffect(() => {
     const unsub = listenToAuthChanges((firebaseUser) => setUser(firebaseUser));
     (async () => {
       const current = await getCurrentUser();
-      if (current) setUser(current);
+      if (current) {
+        setUser(current);
+        // here you’d normally fetch the user’s coins
+        // setCoins(current.coins || 0);
+      }
     })();
     return () => unsub();
   }, []);
@@ -63,6 +69,18 @@ export default function Home() {
         </div>
 
         <div className="nav-right">
+          {/* COIN BLOCK - only when logged in */}
+          {user && (
+            <div className="coin-block">
+              <div
+                className="coin-sprite"
+                style={{ backgroundImage: `url(${coinSprite})` }}
+              />
+
+              <span className="coin-amount">{coins}</span>
+            </div>
+          )}
+
           {!user ? (
             <button className="login-btn" onClick={() => navigate("/login")}>
               Login
@@ -89,10 +107,7 @@ export default function Home() {
       {/* HERO SECTION */}
       <main className="content">
         <h1>Welcome to VerifAI</h1>
-        <p>
-          Test your knowledge, train smarter, and verify your authenticity with AI.
-        </p>
-
+        <p>Test your knowledge, train smarter, and verify your authenticity with AI.</p>
       </main>
 
       {/* FEATURES PREVIEW */}

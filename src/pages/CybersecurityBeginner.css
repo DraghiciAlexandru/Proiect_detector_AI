@@ -143,3 +143,39 @@
   background: rgba(255, 255, 255, 0.25);
   transform: scale(1.05);
 }
+.coin-block {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 10px;
+  border-radius: 9999px;
+  transform: scale(1.25); /* increase everything */
+  transform-origin: right center; /* keeps alignment with user info */
+}
+
+
+.coin-sprite {
+  width: 16px;
+  height: 16px;
+  background-repeat: no-repeat;
+  background-size: 240px 16px; /* full sheet size */
+  image-rendering: pixelated; /* optional – crisp edges */
+  animation: coin-spin 1s steps(15) infinite;
+}
+
+.coin-amount {
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+@keyframes coin-spin {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: -240px 0; /* move through all 15 frames */
+  }
+}

@@ -2,17 +2,20 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Interviews.css";
 import logo from "../assets/logo.png";
+import coinSprite from "../assets/coin-sprite.png";
+
 import {
   getCurrentUser,
   listenToAuthChanges,
   logout,
-} from "../auth/auth"; // ⬅️ use the new helpers
+} from "../auth/auth";
 
 export default function Interviews() {
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [coins, setCoins] = useState(120); // placeholder; replace with real data
 
   const domains = [
     "JavaScript",
@@ -25,16 +28,13 @@ export default function Interviews() {
   ];
 
   const difficulties = ["Beginner", "Intermediate", "Advanced"];
-
   const [progress, setProgress] = useState({});
 
-  // ✅ keep user logged in on refresh
   useEffect(() => {
     const unsub = listenToAuthChanges((firebaseUser) => {
       setUser(firebaseUser);
     });
 
-    // optional initial read
     (async () => {
       const current = await getCurrentUser();
       if (current) setUser(current);
@@ -43,7 +43,6 @@ export default function Interviews() {
     return () => unsub();
   }, []);
 
-  // load interview progress
   useEffect(() => {
     const saved = localStorage.getItem("interviewProgress_v2");
     if (saved) {
@@ -68,7 +67,6 @@ export default function Interviews() {
   const handleDifficultyClick = (domain, level) => {
     if (isLocked(domain, level)) return;
 
-    // special route for cybersecurity beginner
     if (domain === "Cybersecurity" && level === "Beginner") {
       const next = {
         ...progress,
@@ -90,7 +88,6 @@ export default function Interviews() {
       },
     };
     saveProgress(next);
-
     alert(`${domain} - ${level} started!`);
   };
 
@@ -132,6 +129,16 @@ export default function Interviews() {
         </div>
 
         <div className="nav-right">
+          {user && (
+            <div className="coin-block">
+              <div
+                className="coin-sprite"
+                style={{ backgroundImage: `url(${coinSprite})` }}
+              />
+              <span className="coin-amount">120</span>
+            </div>
+          )}
+
           {!user ? (
             <button className="login-btn" onClick={() => navigate("/login")}>
               Login
@@ -153,6 +160,7 @@ export default function Interviews() {
             </div>
           )}
         </div>
+
       </nav>
 
       {/* MAIN CONTENT */}
@@ -186,7 +194,6 @@ export default function Interviews() {
           ))}
         </div>
 
-        {/* RESET BTN */}
         <div className="interviews-footer">
           <button className="reset-btn" onClick={handleReset}>
             Reset progress

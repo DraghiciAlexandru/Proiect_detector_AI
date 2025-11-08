@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./CybersecurityBeginner.css";
 import logo from "../assets/logo.png";
+import coinSprite from "../assets/coin-sprite.png";
 import { getCurrentUser, listenToAuthChanges, logout } from "../auth/auth";
 
 export default function CybersecurityBeginner() {
@@ -9,8 +10,8 @@ export default function CybersecurityBeginner() {
 
   const [user, setUser] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [coins, setCoins] = useState(120); // placeholder, swap with real value
 
-  // ✅ Keep user logged in across refresh
   useEffect(() => {
     const unsub = listenToAuthChanges((firebaseUser) => {
       setUser(firebaseUser);
@@ -18,7 +19,10 @@ export default function CybersecurityBeginner() {
 
     (async () => {
       const current = await getCurrentUser();
-      if (current) setUser(current);
+      if (current) {
+        setUser(current);
+        // here you'd normally fetch coins for this user
+      }
     })();
 
     return () => unsub();
@@ -57,6 +61,16 @@ export default function CybersecurityBeginner() {
         </div>
 
         <div className="nav-right">
+          {user && (
+            <div className="coin-block">
+              <div
+                className="coin-sprite"
+                style={{ backgroundImage: `url(${coinSprite})` }}
+              />
+              <span className="coin-amount">{coins}</span>
+            </div>
+          )}
+
           {!user ? (
             <button className="login-btn" onClick={() => navigate("/login")}>
               Login
