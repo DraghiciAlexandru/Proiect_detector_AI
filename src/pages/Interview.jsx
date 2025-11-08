@@ -72,8 +72,10 @@ export default function Interview() {
 
       setConversations([...sidebarItems]);
       setCurrentId(newId);
-      if (!isAnyInterviewFinished) 
+      if (!isAnyInterviewFinished) {
+        setHistory([{ role: "assistant", text: interviewService.getIntroductionMessage(domain, level) }]);
         await generateNextQuestion();
+      }
       setLoading(false);
     }
     init();
