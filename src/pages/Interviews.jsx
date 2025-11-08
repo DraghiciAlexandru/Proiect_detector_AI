@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./Interviews.css";
 import logo from "../assets/logo.png";
 import coinSprite from "../assets/coin-sprite.png";
+import { getUserCoins } from "../db/db";
 
 import {
   getCurrentUser,
@@ -15,7 +16,7 @@ export default function Interviews() {
 
   const [user, setUser] = useState(null);
   const [showUserMenu, setShowUserMenu] = useState(false);
-  const [coins, setCoins] = useState(120); // placeholder; replace with real data
+  const [coins, setCoins] = useState(0); // placeholder; replace with real data
 
   const domains = [
     "JavaScript",
@@ -31,15 +32,19 @@ export default function Interviews() {
   const [progress, setProgress] = useState({});
 
   useEffect(() => {
-    const unsub = listenToAuthChanges((firebaseUser) => {
-      setUser(firebaseUser);
+    const unsub = listenToAuthChanges(async (firebaseUser) => {
+      const userCoins = await getUserCoins(firebaseUser.uid);
+      setCoins(userCoins);
+      setUser(firebaseUser)
     });
-
     (async () => {
       const current = await getCurrentUser();
-      if (current) setUser(current);
+      if (current) {
+        setUser(current);
+        const userCoins = await getUserCoins(current.uid);
+        setCoins(userCoins);
+      }
     })();
-
     return () => unsub();
   }, []);
 
@@ -135,7 +140,7 @@ export default function Interviews() {
                 className="coin-sprite"
                 style={{ backgroundImage: `url(${coinSprite})` }}
               />
-              <span className="coin-amount">120</span>
+              <span className="coin-amount">{coins}</span>
             </div>
           )}
 
@@ -178,9 +183,8 @@ export default function Interviews() {
                   return (
                     <button
                       key={level}
-                      className={`difficulty-btn ${locked ? "locked" : ""} ${
-                        done ? "completed" : ""
-                      }`}
+                      className={`difficulty-btn ${locked ? "locked" : ""} ${done ? "completed" : ""
+                        }`}
                       onClick={() => handleDifficultyClick(domain, level)}
                       disabled={locked}
                     >
