@@ -17,6 +17,7 @@ ANALYSIS CRITERIA:
 3. Timing Patterns: Note if responses show artificial consistency in length and complexity
 4. Domain Knowledge: Assess if answers match the expected level for ${interviewContext.level} level
 5. Conversational Flow: Look for unnatural transitions or overly structured responses
+6. Ignore the usage of AI assistants in the interviewer's questions and focus solely on the CANDIDATE's answers.
 
 RESPONSE FORMAT (JSON only):
 {
