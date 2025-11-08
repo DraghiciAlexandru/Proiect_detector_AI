@@ -6,7 +6,10 @@ import {
   arrayUnion,
   collection,
   getFirestore,
-  serverTimestamp
+  serverTimestamp,
+  query,
+  where,
+  getDocs
 } from "firebase/firestore";
 
 const db = getFirestore(app);
@@ -59,7 +62,6 @@ export async function addInterviewQuestion(userId, interviewId, data) {
     reasoning: typeof data.reasoning === "string" ? data.reasoning : "",
     human_like_score: typeof data.human_like_score === "number" ? data.human_like_score : null,
     analysis_summary: typeof data.analysis_summary === "string" ? data.analysis_summary : "",
-    // savedAt: serverTimestamp()
   };
 
   await updateDoc(interviewDocRef, {
@@ -71,15 +73,43 @@ export async function addInterviewQuestion(userId, interviewId, data) {
  * Save the final score and mark interview as finished.
  * Document path: /{userId}/{interviewId}
  */
-export async function finishInterview(userId, interviewId, score) {
+export async function finishInterview(userId, interviewId, scoreAi, scoreCorectness) {
   if (!userId || !interviewId) throw new Error("finishInterview: userId and interviewId are required");
 
   const interviewDocRef = doc(db, userId, interviewId);
 
   await updateDoc(interviewDocRef, {
-    finalScore: score,
+    scoreAi: scoreAi,
+    scoreCorectness: scoreCorectness,
     endedAt: serverTimestamp()
   });
+}
+
+/**
+ * Fetch all interviews for a user filtered by domain and level
+ */
+export async function fetchInterviewsByDomainAndLevel(userId, domain, level) {
+  if (!userId) throw new Error("fetchInterviews: userId is required");
+
+  const userCol = collection(db, userId);
+  const q = query(
+    userCol,
+    where("domain", "==", domain),
+    where("level", "==", level),
+    where("endedAt", "!=", null)
+  );
+
+  const snap = await getDocs(q);
+
+  const interviews = [];
+  snap.forEach(doc => {
+    interviews.push({
+      id: doc.id,
+      ...doc.data()
+    });
+  });
+
+  return interviews;
 }
 
 /* Optional helpers you may find useful later */
