@@ -13,11 +13,10 @@ ${fullTranscript}
 
 ANALYSIS CRITERIA:
 1. Response Patterns: Look for unusually consistent sentence structure, perfect grammar, or lack of human hesitation
-2. Content Depth: Check if answers are overly generic or lack personal experience examples
-3. Timing Patterns: Note if responses show artificial consistency in length and complexity
-4. Domain Knowledge: Assess if answers match the expected level for ${interviewContext.level} level
-5. Conversational Flow: Look for unnatural transitions or overly structured responses
-6. Ignore the usage of AI assistants in the interviewer's questions and focus solely on the CANDIDATE's answers.
+2. Timing Patterns: Note if responses show artificial consistency in length and complexity
+3. Domain Knowledge: Assess if answers match the expected level for ${interviewContext.level} level
+4. Conversational Flow: Look for unnatural transitions or overly structured responses
+5. Ignore the usage of AI assistants in the interviewer's questions and focus solely on the CANDIDATE's answers.
 
 RESPONSE FORMAT (JSON only):
 {
