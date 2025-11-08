@@ -9,7 +9,9 @@ import {
   serverTimestamp,
   query,
   where,
-  getDocs
+  getDocs,
+  increment,
+  getDoc
 } from "firebase/firestore";
 
 const db = getFirestore(app);
@@ -117,4 +119,48 @@ export async function fetchInterviewsByDomainAndLevel(userId, domain, level) {
 // Fetch interview document reference (not fetching content here)
 export function getInterviewDocRef(userId, interviewId) {
   return doc(db, userId, interviewId);
+}
+
+/**
+ * Initialize the coins document for a user if it doesn't exist.
+ */
+export async function initUserCoins(userId) {
+  if (!userId) throw new Error("initUserCoins: userId is required");
+
+  const userDocRef = doc(db, "users", userId);
+  const snap = await getDoc(userDocRef);
+
+  if (!snap.exists()) {
+    await setDoc(userDocRef, { coins: 0 });
+  }
+}
+
+/**
+ * Add coins to a user's account.
+ */
+export async function addUserCoins(userId, coinsToAdd) {
+  if (!userId) throw new Error("addUserCoins: userId is required");
+  if (typeof coinsToAdd !== "number") throw new Error("coinsToAdd must be a number");
+
+  console.log(`Adding ${coinsToAdd} coins to user ${userId}`);
+
+  const userDocRef = doc(db, "users", userId);
+  await updateDoc(userDocRef, {
+    coins: increment(coinsToAdd)
+  });
+}
+
+/**
+ * Retrieve current coins for a user.
+ */
+export async function getUserCoins(userId) {
+  if (!userId) throw new Error("getUserCoins: userId is required");
+
+  const userDocRef = doc(db, "users", userId);
+  const snap = await getDoc(userDocRef);
+
+  if (!snap.exists()) return 0;
+
+  const data = snap.data();
+  return data.coins ?? 0;
 }
